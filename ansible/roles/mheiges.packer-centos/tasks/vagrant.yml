@@ -1,0 +1,28 @@
+- name: Add the vagrant user
+  user:
+    name: vagrant
+    comment: Vagrant user
+
+- name: Configure Vagrant .ssh directory.
+  file:
+    path:  /home/vagrant/.ssh
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode:  0700
+
+- name: Install Vagrant's public key.
+  get_url:
+    url:   https://github.com/mitchellh/vagrant/raw/master/keys/vagrant.pub
+    dest:  /home/vagrant/.ssh/authorized_keys
+    owner: vagrant
+    group: vagrant
+    mode:  0600
+
+- name: install vagrant sudoers
+  copy:
+    src: 10_vagrant
+    dest: /etc/sudoers.d/10_vagrant
+    owner: root
+    group: root
+    mode: 0440

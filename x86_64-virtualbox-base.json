@@ -1,0 +1,59 @@
+{
+  "variables":
+    {
+      "ssh_username": "root",
+      "ssh_password": "vagrant",
+
+      "iso_url": "https://buildlogs.centos.org/rolling/7/isos/x86_64/CentOS-7-x86_64-Minimal-1707-01.iso",
+      "iso_checksum": "becbfcea718898877ab5dc3d875b11ab53cd03c9ef97c83399d8ad5bf5ecdb36",
+      "iso_checksum_type": "sha256",
+
+      "memory_size": "512",
+      "cpu_count": "1"
+    },
+
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "sh '{{.Path}}'",
+      "scripts": [
+        "scripts/sudoers.sh"
+      ]
+    }
+  ],
+
+  "builders": [
+    {
+      "output_directory": "builds/virtualbox/centos-7-64-base",
+      "vm_name": "centos-7-64-base",
+      "type": "virtualbox-iso",
+      "boot_command": [
+        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+      ],
+      "boot_wait": "10s",
+      "disk_size": 40520,
+      "guest_os_type": "RedHat_64",
+      "http_directory": "http",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_url": "{{user `iso_url`}}",
+      "headless": "true",
+      "ssh_pty" : "true",
+      "ssh_username": "{{user `ssh_username`}}",
+      "ssh_password": "{{user `ssh_password`}}",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "60m",
+      "shutdown_command": "/sbin/halt -h -p",
+      "guest_additions_path": "VBoxGuestAdditions.iso",
+      "virtualbox_version_file": ".vbox_version",
+      "vboxmanage": [
+        [ "modifyvm", "{{.Name}}", "--memory", "{{user `memory_size`}}" ],
+        [ "modifyvm", "{{.Name}}", "--cpus", "{{user `cpu_count`}}" ],
+        [ "modifyvm", "{{.Name}}", "--rtcuseutc", "on" ],
+        [ "modifyvm", "{{.Name}}", "--ioapic", "off"]
+      ],
+      "hard_drive_interface": "sata"
+    }
+  ]
+
+}
